@@ -1,0 +1,41 @@
+:root {
+  --canopy: #f5f7f6;
+  --slab: #e3e7e5;
+  --line: #c4cbc8;
+  --ink: #1e2b30;
+  --ink-muted: #5b6a70;
+  /* fills — identity colours for gauges and chart series */
+  --super: #c93a2e;
+  --hi-octane: #6a4ba3;
+  --diesel: #1f7a52;
+  /* text — ≥4.5:1 on canopy and slab (AA) */
+  --super-text: #9e2e24;
+  --hi-octane-text: #523a82;
+  --diesel-text: #176342;
+  --focus-ring: #1e2b30;
+  --hatch-fg: #1e2b30;
+  --hatch-bg: #f5f7f6;
+  --content-max: 1200px;
+  --rail-width: 200px;
+  --rail-collapsed: 56px;
+  --tab-bar-height: 64px;
+  --mobile-top-bar: 52px;
+}
+
+.dark {
+  --canopy: #12181a;
+  --slab: #1c2427;
+  --line: #2e3a3e;
+  --ink: #e8eef0;
+  --ink-muted: #8a9a9f;
+  --super: #e85a4f;
+  --hi-octane: #9b7fd4;
+  --diesel: #3da87a;
+  /* text — ≥4.5:1 on dark canopy and slab */
+  --super-text: #f28b82;
+  --hi-octane-text: #bba3e6;
+  --diesel-text: #5dca9a;
+  --focus-ring: #e8eef0;
+  --hatch-fg: #e8eef0;
+  --hatch-bg: #12181a;
+}

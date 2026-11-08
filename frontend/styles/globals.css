@@ -1,0 +1,48 @@
+@import "./tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply h-full bg-canopy text-ink antialiased;
+  }
+
+  body {
+    @apply min-h-full bg-canopy font-sans text-ink;
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  ::selection {
+    background: var(--slab);
+    color: var(--ink);
+  }
+}
+
+@layer utilities {
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .hazard-hatch {
+    background-color: var(--hatch-bg);
+    background-image: repeating-linear-gradient(
+      45deg,
+      var(--hatch-fg) 0,
+      var(--hatch-fg) 1px,
+      transparent 1px,
+      transparent 6px
+    );
+  }
+
+  .focus-ring {
+    outline: 2px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+}

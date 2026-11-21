@@ -3,6 +3,20 @@ import sqlite3
 from dotenv import load_dotenv
 from groq import Groq
 
+def run_query(sql):
+    conn = sqlite3.connect("file:../data/forecourt.db?mode=ro", uri=True)
+    try:
+        rows = conn.execute(sql).fetchall()
+        result = str(rows[:20])
+        if len(rows) > 20:
+            result += (f"\n(Only the first 20 of {len(rows)} rows are shown. "
+                       f"Use ORDER BY and LIMIT so the rows that matter come first.)")
+        return result
+    except Exception as e:
+        return f"ERROR: {e}"         
+    finally:
+        conn.close()
+
 def ask(question):
     load_dotenv()
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
@@ -30,6 +44,8 @@ def ask(question):
 
 
 if __name__ == "__main__":
+    print(run_query("SELECT COUNT(*) FROM stations"))
+    print(run_query("SELECT COUNT(*) FROM petrol_pumps"))
     sql, rows = ask("What was the total revenue on 2026-11-08?")
     print(sql)
     print(rows)

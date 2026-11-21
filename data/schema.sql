@@ -146,3 +146,63 @@ CREATE INDEX idx_sales_nozzle    ON sales (nozzle_id);
 CREATE INDEX idx_nozzles_tank    ON nozzles (tank_id);
 CREATE INDEX idx_deliveries_tank ON deliveries (tank_id, delivered_at);
 CREATE INDEX idx_expenses_date   ON expenses (expense_date);
+
+DROP VIEW IF EXISTS tank_reconciliation;
+CREATE VIEW tank_reconciliation AS
+WITH sold AS (
+    SELECT n.tank_id, s.business_date, SUM(s.litres) AS sold_l
+    FROM sales s
+    JOIN nozzles n ON n.id = s.nozzle_id
+    GROUP BY n.tank_id, s.business_date
+),
+delivered AS (
+    SELECT tank_id, date(delivered_at) AS business_date, SUM(litres) AS delivered_l
+    FROM deliveries
+    GROUP BY tank_id, date(delivered_at)
+),
+dips AS (
+    SELECT tank_id, business_date, measured_l,
+           LAG(measured_l) OVER (PARTITION BY tank_id ORDER BY business_date) AS opening_l
+    FROM tank_dips
+)
+SELECT d.tank_id,
+       d.business_date,
+       d.opening_l,                                              -- yesterday's closing dip
+       COALESCE(dl.delivered_l, 0) AS delivered_l,
+       COALESCE(s.sold_l, 0)       AS sold_l,
+       d.opening_l + COALESCE(dl.delivered_l, 0) - COALESCE(s.sold_l, 0) AS expected_closing_l,
+       d.measured_l AS measured_closing_l,
+       d.measured_l - (d.opening_l + COALESCE(dl.delivered_l, 0) - COALESCE(s.sold_l, 0)) AS variance_l
+FROM dips d
+LEFT JOIN delivered dl ON dl.tank_id = d.tank_id AND dl.business_date = d.business_date
+LEFT JOIN sold s       ON s.tank_id  = d.tank_id AND s.business_date  = d.business_date
+WHERE d.opening_l IS NOT NULL;DROP VIEW IF EXISTS tank_reconciliation;
+CREATE VIEW tank_reconciliation AS
+WITH sold AS (
+    SELECT n.tank_id, s.business_date, SUM(s.litres) AS sold_l
+    FROM sales s
+    JOIN nozzles n ON n.id = s.nozzle_id
+    GROUP BY n.tank_id, s.business_date
+),
+delivered AS (
+    SELECT tank_id, date(delivered_at) AS business_date, SUM(litres) AS delivered_l
+    FROM deliveries
+    GROUP BY tank_id, date(delivered_at)
+),
+dips AS (
+    SELECT tank_id, business_date, measured_l,
+           LAG(measured_l) OVER (PARTITION BY tank_id ORDER BY business_date) AS opening_l
+    FROM tank_dips
+)
+SELECT d.tank_id,
+       d.business_date,
+       d.opening_l,                                              -- yesterday's closing dip
+       COALESCE(dl.delivered_l, 0) AS delivered_l,
+       COALESCE(s.sold_l, 0)       AS sold_l,
+       d.opening_l + COALESCE(dl.delivered_l, 0) - COALESCE(s.sold_l, 0) AS expected_closing_l,
+       d.measured_l AS measured_closing_l,
+       d.measured_l - (d.opening_l + COALESCE(dl.delivered_l, 0) - COALESCE(s.sold_l, 0)) AS variance_l
+FROM dips d
+LEFT JOIN delivered dl ON dl.tank_id = d.tank_id AND dl.business_date = d.business_date
+LEFT JOIN sold s       ON s.tank_id  = d.tank_id AND s.business_date  = d.business_date
+WHERE d.opening_l IS NOT NULL;
